@@ -11,7 +11,7 @@
 #include <applycut/basic/serialcutapp.hpp>
 #include <decomp/bisectdecomp.hpp>
 #include "apsupp.hpp"
-
+#include "hypersupp.hpp"
 
 
 /*
@@ -20,31 +20,45 @@
 int main(int argc, char** argv) {
 
     // Setup problem
+    // Aluffi Pentini
+#if 0    
     const int n = 2;
     OPTITEST::AluffiPentiniObjective obj;
+    APBoundSupp supp;
+    APGradSupp gsupp;
+    APHessSupp hsupp;
     snowgoose::Box<double> box(n);
     initboxAP(box);
-
+#endif
+    
+    // Hyperbolic function
+#if 1    
+    const int n = 2;
+    OPTITEST::HyperObjective obj;
+    HyperBoundSupp supp;
+    HyperGradSupp gsupp;
+    HyperHessSupp hsupp;
+    snowgoose::Box<double> box(n);
+    initboxHyper(box);
+#endif
+    
     // Setup Cut Factory 1
     const double eps = 1e-4;
     const double L = 4;
     NUC::RecordSupplier<double> rs(std::numeric_limits<double>::max());
-    APBoundSupp supp;
     NUC::LBCutFactory<double> cf(eps, rs, supp);
 
     // Setup cut factory 2
-    APGradSupp gsupp;
     NUC::LipGradCutFactory<double> lfact(obj, box, gsupp);
 
     // Setup cut factory 3
-    APHessSupp hsupp;
     NUC::LipHessCutFactory<double> hfact(obj, box, hsupp);
 
     // Setup composite cut factory 
     NUC::CompositeCutFactory<double> compf;
     compf.addFactory(&cf);
     //compf.addFactory(&lfact);
-    //compf.addFactory(&hfact);
+    compf.addFactory(&hfact);
 
     // Setup bag of sub problems
     NUC::Sub<double> sub(0, std::numeric_limits<double>::max(), box);
@@ -78,13 +92,25 @@ int main(int argc, char** argv) {
 
     int cnt = 0;
     // Setup step watchers
-    auto tf = [&](const NUC::Sub<double>& s, const NUC::BaseSolver<double>& slv) {
+    auto tf = [&](const NUC::Sub<double>& s, 
+            const std::vector<std::shared_ptr <NUC::Cut <double> > >& cv,
+            const std::vector< snowgoose::Box<double> >& bv,
+            const NUC::BaseSolver<double>& slv) {
 #if 0        
         std::cout << "Sub: \n";
         std::cout << "Score = " << s.mScore;
         std::cout << "\n Layer = " << s.mLayer;
         std::cout << "\n Box = " << snowgoose::BoxUtils::toString(s.mBox) << "\n";
 #endif
+        for(auto ct : cv) {
+            std::cout << ct->about();
+        }
+        std::cout << "---\n";
+        for(auto b : bv) {
+            std::cout << snowgoose::BoxUtils::toString(b) << "\n";
+        }
+        std::cout << "---\n";
+        getchar();
         cnt++;
     };
     solver.addStepWatcher(tf);
