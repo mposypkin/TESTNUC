@@ -12,6 +12,7 @@
 #include <decomp/bisectdecomp.hpp>
 #include "apsupp.hpp"
 #include "hypersupp.hpp"
+#include "cubicsupp.hpp"
 
 
 /*
@@ -42,6 +43,17 @@ int main(int argc, char** argv) {
     initboxHyper(box);
 #endif
     
+       // Cubic function
+#if 0    
+    const int n = 16;
+    OPTITEST::CubicObjective obj(n);
+    CubicBoundSupp supp;
+    CubicGradSupp gsupp;
+    CubicHessSupp hsupp;
+    snowgoose::Box<double> box(n);
+    initboxHyper(box);
+#endif
+    
     // Setup Cut Factory 1
     const double eps = 1e-4;
     const double L = 4;
@@ -57,7 +69,7 @@ int main(int argc, char** argv) {
     // Setup composite cut factory 
     NUC::CompositeCutFactory<double> compf;
     compf.addFactory(&cf);
-    //compf.addFactory(&lfact);
+    compf.addFactory(&lfact);
     compf.addFactory(&hfact);
 
     // Setup bag of sub problems
@@ -110,10 +122,18 @@ int main(int argc, char** argv) {
             std::cout << snowgoose::BoxUtils::toString(b) << "\n";
         }
         std::cout << "---\n";
-        getchar();
+        getchar();        
+    };
+    
+    auto cntf = [&](const NUC::Sub<double>& s, 
+            const std::vector<std::shared_ptr <NUC::Cut <double> > >& cv,
+            const std::vector< snowgoose::Box<double> >& bv,
+            const NUC::BaseSolver<double>& slv) {
         cnt++;
     };
-    solver.addStepWatcher(tf);
+    
+    //solver.addStepWatcher(tf);
+    solver.addStepWatcher(cntf);
 
     // Preset value 
     rs.setRv(-0.352386);
