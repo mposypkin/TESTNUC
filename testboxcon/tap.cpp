@@ -22,7 +22,7 @@ int main(int argc, char** argv) {
 
     // Setup problem
     // Aluffi Pentini
-#if 0    
+#if 1    
     const int n = 2;
     OPTITEST::AluffiPentiniObjective obj;
     APBoundSupp supp;
@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
 #endif
     
     // Hyperbolic function
-#if 1    
+#if 0    
     const int n = 2;
     OPTITEST::HyperObjective obj;
     HyperBoundSupp supp;
@@ -62,7 +62,8 @@ int main(int argc, char** argv) {
 
     // Setup cut factory 2
     NUC::LipGradCutFactory<double> lfact(obj, box, gsupp);
-
+    lfact.getOptions() &= ~ (NUC::LipGradCutFactory<double>::Options::EXTRACT_BOX);
+    
     // Setup cut factory 3
     NUC::LipHessCutFactory<double> hfact(obj, box, hsupp);
 
