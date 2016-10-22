@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
 
     // Setup cut factory 2
     NUC::LipGradCutFactory<double> lfact(obj, box, gsupp);
-    lfact.getOptions() &= ~ (NUC::LipGradCutFactory<double>::Options::EXTRACT_BOX);
+    lfact.getOptions() &= ~ (NUC::LipGradCutFactory<double>::Options::EXTRACT_BALL);
     
     // Setup cut factory 3
     NUC::LipHessCutFactory<double> hfact(obj, box, hsupp);
@@ -116,7 +116,7 @@ int main(int argc, char** argv) {
         std::cout << "\n Box = " << snowgoose::BoxUtils::toString(s.mBox) << "\n";
 #endif
         for(auto ct : cv) {
-            std::cout << ct->about();
+            std::cout << ct->toString();
         }
         std::cout << "---\n";
         for(auto b : bv) {
