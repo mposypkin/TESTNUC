@@ -1,5 +1,6 @@
 all dep clean indent tests::
-	cd testboxcon && $(MAKE) $@ && cd .. 
+	cd testboxcon && $(MAKE) $@ && cd .. \\
+	cd testdejong && $(MAKE) $@ && cd ..
 	
 doc: indent doxy
 
