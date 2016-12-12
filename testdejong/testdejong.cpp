@@ -31,7 +31,7 @@ int main() {
     for(int i=0; i<n; ++i)
     {
         bx.mA[i]=-2;
-        bx.mA[i]=4;
+        bx.mB[i]=4;
     }
     SG_ASSERT(is_equal(ibs.getBound(bx), 0.0));    
     return 0;

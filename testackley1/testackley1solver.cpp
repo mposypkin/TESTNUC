@@ -5,12 +5,13 @@
  */
 
 /* 
- * File:   testdejongsolver.cpp
- * Author: Alexander Usov
+ * File:   testackley1solver.cpp
+ * Author: alusov
  *
- * Created on December 7, 2016, 9:45 AM
+ * Created on December 10, 2016, 6:42 PM
  */
 
+#include <math.h>
 #include <limits>
 #include <vector>
 #include <bags/bfsbag.hpp>
@@ -18,16 +19,22 @@
 #include <cutfact/lbcutfact/lbcutfactory.hpp>
 #include <applycut/basic/serialcutapp.hpp>
 #include <decomp/bisectdecomp.hpp>
-#include <oneobj/contboxconstr/dejong.hpp>
+#include <oneobj/contboxconstr/ackley1.hpp>
 #include <solver/basesolver.hpp>
 #include <box/boxutils.hpp>
 #include <common/interval.hpp>
 
-#include "dejongbndsupp.hpp"
+#include "ackley1bndsupp.hpp"
+#define EPSILON 0.001
+
+int is_equal(double x, double y) 
+{
+    return ::abs(x - y) < EPSILON ? 1 : 0;
+}
 
 bool stopper(const NUC::BaseSolver<double>& solver) {
     static int cnt = 0;
-    const int maxCnt = 100;
+    const int maxCnt = 10000;
     if (cnt++ > maxCnt) {
         return true;
     } else {
@@ -37,10 +44,9 @@ bool stopper(const NUC::BaseSolver<double>& solver) {
 
 int main() {
     const int n = 2;
-    const double eps = 0.01;
 
     // Setup problem
-    OPTITEST::DejongProblemFactory fact(n, -2, 4);
+    OPTITEST::Ackley1ProblemFactory2 fact(0.9, 1.2, -0.1, 0.2);
     COMPI::MPProblem<double> *mpp = fact.getProblem();
 
     //Setup bag of sub problems
@@ -51,8 +57,8 @@ int main() {
     //Setup Cut Factory
     NUC::RecordSupplier<double> rs(std::numeric_limits<double>::max());
     COMPI::Functor<double>* pf = mpp->mObjectives.at(0);
-    TESTNUC::DejongBoundSupplier<double> ibs(n);
-    NUC::LBCutFactory<double> cf(eps, rs, ibs);
+    TESTNUC::Ackley1BoundSupplier<double> ibs(n);
+    NUC::LBCutFactory<double> cf(EPSILON, rs, ibs);
 
     // Setup decomposer
     NUC::BisectDecomp<double> bisdec;
@@ -75,10 +81,10 @@ int main() {
         auto bf = [](const NUC::Sub<double>& sub){ 
             std::cout << snowgoose::BoxUtils::toString(sub.mBox) << "  ";
         };
-        std::cout << "\n Bag: " << bag.size() << " "; bag.traverse(bf);
+        std::cout << "\n Bag: " << bag.size();// << " "; bag.traverse(bf);
         std::cout << "\n Box = " << snowgoose::BoxUtils::toString(s.mBox) << "\n";       
     };
-    solver.addStepWatcher(tf);
+    //solver.addStepWatcher(tf);
 
     double x[n];
     //Setup sub evaluators
@@ -86,15 +92,7 @@ int main() {
         snowgoose::BoxUtils::getCenter(s.mBox, x);
         double v = pf->func(x);
         rs.updateRv(v);
-        double lb = 0;
-        double ub = 0;
-        for(int i=0; i < n; i++)
-        {
-            double min, max;
-            snowgoose::Interval<double>::sqr(s.mBox.mA[i], s.mBox.mB[i], &min, &max);
-            snowgoose::Interval<double>::sum(lb, ub, min, max, &lb, &ub);
-        }
-        s.mScore = lb;
+        s.mScore = ibs.getBound(s.mBox);
     };
     solver.addSubEval(sf);
 
@@ -102,15 +100,8 @@ int main() {
     solver.solve(); 
 
     std::cout << "Best value found : " << rs.getBound(sub.mBox) << "\n";
-
-    auto ttf = [] (const NUC::Sub<double>& s) {
-        std::cout << "Sub: ";
-        std::cout << "Score = " << s.mScore;
-        std::cout << ", Layer = " << s.mLayer;
-        std::cout << ", Box = " << snowgoose::BoxUtils::toString(s.mBox) << "\n";
-    };
-
-    solver.getBag().traverse(ttf);
+    
+    SG_ASSERT(is_equal(rs.getBound(sub.mBox), 2.57993));
     
     return 0;
 }
