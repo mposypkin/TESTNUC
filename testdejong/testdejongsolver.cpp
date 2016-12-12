@@ -86,15 +86,7 @@ int main() {
         snowgoose::BoxUtils::getCenter(s.mBox, x);
         double v = pf->func(x);
         rs.updateRv(v);
-        double lb = 0;
-        double ub = 0;
-        for(int i=0; i < n; i++)
-        {
-            double min, max;
-            snowgoose::Interval<double>::sqr(s.mBox.mA[i], s.mBox.mB[i], &min, &max);
-            snowgoose::Interval<double>::sum(lb, ub, min, max, &lb, &ub);
-        }
-        s.mScore = lb;
+        s.mScore = ibs.getBound(s.mBox);
     };
     solver.addSubEval(sf);
 
