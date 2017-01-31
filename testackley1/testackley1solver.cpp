@@ -46,7 +46,7 @@ int main() {
     const int n = 2;
 
     // Setup problem
-    OPTITEST::Ackley1ProblemFactory fact(std::vector<double>({0.9, 1.2}), std::vector<double>({-0.1, 0.2}));
+    OPTITEST::Ackley1ProblemFactory fact({{0.9, 1.2},{-0.1, 0.2}});
     COMPI::MPProblem<double> *mpp = fact.getProblem();
 
     //Setup bag of sub problems
