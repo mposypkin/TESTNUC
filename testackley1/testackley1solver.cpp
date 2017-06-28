@@ -56,7 +56,7 @@ int main() {
 
     //Setup Cut Factory
     NUC::RecordSupplier<double> rs(std::numeric_limits<double>::max());
-    COMPI::Functor<double>* pf = mpp->mObjectives.at(0);
+    auto pf = mpp->mObjectives.at(0);
     TESTNUC::Ackley1BoundSupplier<double> ibs(n);
     NUC::LBCutFactory<double> cf(EPSILON, rs, ibs);
 
