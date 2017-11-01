@@ -57,7 +57,7 @@ int main(int argc, char** argv) {
     // Setup Cut Factory 1
     const double eps = 1e-4;
     const double L = 4;
-    NUC::RecordSupplier<double> rs(std::numeric_limits<double>::max());
+    NUC::RecordSupplier<double> rs(std::numeric_limits<double>::max(), n);
     NUC::LBCutFactory<double> cf(eps, rs, supp);
 
     // Setup cut factory 2
