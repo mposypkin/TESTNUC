@@ -49,7 +49,7 @@ int main() {
     bag.putSub(sub);
 
     //Setup Cut Factory
-    NUC::RecordSupplier<double> rs(std::numeric_limits<double>::max());
+    NUC::RecordSupplier<double> rs(std::numeric_limits<double>::max(), n);
     auto pf = mpp->mObjectives.at(0);
     TESTNUC::DejongBoundSupplier<double> ibs(n);
     NUC::LBCutFactory<double> cf(eps, rs, ibs);
